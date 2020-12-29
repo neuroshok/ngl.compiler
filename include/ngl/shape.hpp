@@ -39,9 +39,9 @@ namespace ngl
         uint64_t vector_id = 0;
         uint64_t is_fragment = 0;
         uint64_t is_parser = 0;
-        bool ignore = false;
     };
 
+    /*
     struct shape_ignore : shape_data
     {
         explicit shape_ignore(const shape_data& sh)
@@ -57,7 +57,7 @@ namespace ngl
             is_parser = sh.is_parser;
             ignore = true;
         }
-    };
+    };*/
 
     struct shape_element
     {

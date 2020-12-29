@@ -6,12 +6,12 @@ TEST(parser, basic)
     auto letter = shapes.add_element<ngl::shape_range>('a', 'z');
     auto plus = shapes.add_element('+');
 
-    auto add = shapes.add<ngl::shape_sequence>("add", letter, ngl::shape_ignore(plus), letter);
+    auto add = shapes.add<ngl::shape_sequence>("add", letter, plus, letter);
 
     /*!
         add
-       /   \
-     a       b
+       / | \
+     a   +   b
      */
     {
         ngl::lexer lx{ shapes };
@@ -24,9 +24,10 @@ TEST(parser, basic)
         {
             v.push_back(*n);
         });
-        ASSERT_TRUE( lx.graph().count_nodes() == 3 );
+        ASSERT_TRUE( lx.graph().count_nodes() == 4 );
         EXPECT_TRUE( *lx.root() == "add" );
         EXPECT_TRUE( v[0] == "a" );
-        EXPECT_TRUE( v[1] == "b" );
+        EXPECT_TRUE( v[1] == "+" );
+        EXPECT_TRUE( v[2] == "b" );
     }
 }

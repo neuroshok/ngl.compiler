@@ -24,7 +24,7 @@ namespace ngl
         : data_{}
     {
         shape_clusters_.emplace_back(std::move(shape_cluster));
-        root_ = graph_.emplace("shape");
+        root_ =  nullptr;
     }
 
     void lexer::process(std::string_view data)
@@ -36,7 +36,7 @@ namespace ngl
     // todo : use 3 registers for scalar, vector and parser states
     void lexer::process()
     {
-        ngl::node_ptr<std::string> current_ = graph_.add("root"s);
+        ngl::node_ptr<std::string> current_ = root_;
         reset();
 
         try
@@ -262,10 +262,20 @@ namespace ngl
                 {
                     finalize = false;
 
-                    //current_ = graph_.add("SD"s, current_);
-                    //current_ = graph_.add("path_identifier"s, current_);
+                    // init root
+                    if (parser_state != 0)
+                    {
+                        auto lhs_shape_id = parser_state & (~parser_state << 1u);
+                        const auto& name = shape_cluster.name_of(lhs_shape_id);
+                        root_ = graph_.add(name);
+                        current_ = root_;
+                    }
+                    else
+                    {
+                        root_ = graph_.add("root"s);
+                        current_ = root_;
+                    }
                 }
-
 
                 // finalization
                 if (finalize)
@@ -325,34 +335,34 @@ namespace ngl
             //
 
             // move up
-                    if (pparser_state > (pparser_state & parser_state))
-                    {
-                        std::cout << "__UP";
-                        graph_.add(to_string(shapes_.back()), current_);
-                        // get depth
-                        auto depth = bit_count(pparser_state ^ parser_state);
+            if (pparser_state > (pparser_state & parser_state))
+            {
+                std::cout << "__UP";
+                graph_.add(to_string(shapes_.back()), current_);
+                // get depth
+                auto depth = bit_count(pparser_state ^ parser_state);
 
-                        for (uint64_t di = 0; di < depth - 1; ++di)
-                        {
-                            graph_.sources(current_, [&current_](auto&& node_) { current_ = node_; });
-                        }
-                    }
-                    // move down
-                    else if (parser_state > (pparser_state & parser_state))
-                    {
-                        std::cout << "__DOWN";
-                        // right side bit
-                        auto rhs_shape_id = parser_state & (~parser_state << 1u);
-                        const auto& name = shape_cluster.name_of(rhs_shape_id);
+                for (uint64_t di = 0; di < depth - 1; ++di)
+                {
+                    graph_.sources(current_, [&current_](auto&& node_) { current_ = node_; });
+                }
+            }
+            // move down
+            else if (parser_state > (pparser_state & parser_state))
+            {
+                std::cout << "__DOWN";
+                // right side bit
+                auto rhs_shape_id = parser_state & (~parser_state << 1u);
+                const auto& name = shape_cluster.name_of(rhs_shape_id);
 
-                        graph_.add(to_string(shapes_.back()), current_);
-                        current_ = graph_.add(name, current_);
-                    }
-                    // same shape
-                    else if (parser_state == (pparser_state & parser_state))
-                    {
-                        graph_.add(to_string(shapes_.back()), current_);
-                    }
+                graph_.add(to_string(shapes_.back()), current_);
+                current_ = graph_.add(name, current_);
+            }
+            // same shape
+            else if (parser_state == (pparser_state & parser_state))
+            {
+                graph_.add(to_string(shapes_.back()), current_);
+            }
 
             // remove init shape
             //shapes_.erase(shapes_.begin());
@@ -414,7 +424,8 @@ namespace ngl
 
     std::string lexer::to_string(const shape& shape) const
     {
-        std::string str = shape.name + "(" + std::string(data_.substr(shape.location.origin, shape.location.size)) + ")";
+        //std::string str = shape.name + "(" + std::string(data_.substr(shape.location.origin, shape.location.size)) + ")";
+        std::string str = std::string(data_.substr(shape.location.origin, shape.location.size));
 
         return str;
     }
