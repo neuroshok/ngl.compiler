@@ -7,7 +7,7 @@ file(GLOB_RECURSE SOURCES "*.cpp")
 
 add_executable(test_nc ${SOURCES})
 target_include_directories(test_nc PUBLIC ${NC_THIRD_PARTY_ROOT}/gtest/include)
-target_link_libraries(test_nc lib_gtest lib_nc)
+target_link_libraries(test_nc lib_gtest lib_nc lib_ccw)
 
 add_dependencies(test_nc lib_gtest lib_nc)
 

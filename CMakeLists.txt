@@ -1,17 +1,21 @@
 cmake_minimum_required(VERSION 3.14)
 
+project(nc)
+
 include(cmake/ccw.cmake)
 
-set(NC_ROOT ${NGL_ROOT}/compiler)
-set(NC_THIRD_PARTY_ROOT ${NGL_ROOT}/compiler/third_party)
-set(NC_BIN_ROOT ${NGL_ROOT}/compiler/bin)
+set(NC_ROOT ${CMAKE_SOURCE_DIR})
+set(NC_THIRD_PARTY_ROOT ${NC_ROOT}/third_party)
+set(NC_BIN_ROOT ${NC_ROOT}/bin)
 
 set(CMAKE_CXX_STANDARD 17)
 
 # compiler options
+
 jln_target_interface(lib_ccw INTERFACE
         WARNINGS strict
         EXCEPTIONS on
+        MSVC_ISYSTEM external_as_include_system_flag
         BUILD_TYPE release
             OPTIMIZATION 3
         BUILD_TYPE debug
@@ -55,20 +59,20 @@ message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
 message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
 
 add_library(lib_llvm INTERFACE)
-target_include_directories(lib_llvm INTERFACE SYSTEM ${LLVM_INCLUDE_DIRS})
+target_include_directories(lib_llvm SYSTEM INTERFACE ${LLVM_INCLUDE_DIRS})
 target_compile_definitions(lib_llvm INTERFACE ${LLVM_DEFINITIONS})
 target_link_directories(lib_llvm INTERFACE ${LLVM_PATH}/lib)
 llvm_map_components_to_libnames(llvm_libs
         x86asmparser x86codegen x86desc x86disassembler x86info x86utils
         codegen core native nativecodegen support)
-target_link_libraries(lib_llvm INTERFACE ${llvm_libs})
+target_link_libraries(lib_llvm INTERFACE ${llvm_libs} lib_ccw)
 
 # lib_nds
 add_subdirectory(third_party/nds)
 
 # lib_speedlog
 add_library(lib_speedlog INTERFACE)
-target_include_directories(lib_speedlog INTERFACE "third_party/spdlog/include")
+target_include_directories(lib_speedlog SYSTEM INTERFACE "third_party/spdlog/include")
 target_link_libraries(lib_speedlog INTERFACE lib_ccw)
 
 #-------------------------------------------------------
@@ -83,7 +87,8 @@ target_include_directories(lib_nc_object PUBLIC include)
 target_link_libraries(lib_nc_object
         lib_llvm
         lib_nds
-        lib_speedlog)
+        lib_speedlog
+        lib_ccw)
 
 
 # lib_nc interface
