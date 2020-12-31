@@ -24,7 +24,7 @@ namespace ngl
         : data_{}
     {
         shape_clusters_.emplace_back(std::move(shape_cluster));
-        root_ =  nullptr;
+        root_ = graph_.add("root"s);
     }
 
     void lexer::process(std::string_view data)
@@ -262,19 +262,10 @@ namespace ngl
                 {
                     finalize = false;
 
-                    // init root
-                    if (parser_state != 0)
-                    {
-                        auto lhs_shape_id = parser_state & (~parser_state << 1u);
-                        const auto& name = shape_cluster.name_of(lhs_shape_id);
-                        root_ = graph_.add(name);
-                        current_ = root_;
-                    }
-                    else
-                    {
-                        root_ = graph_.add("root"s);
-                        current_ = root_;
-                    }
+                    auto lhs_shape_id = parser_state & (~parser_state << 1u);
+                    auto name = shape_name(shape_cluster, parser_state, match_state);
+                    current_ = graph_.add(name, current_);
+                    first_node_ = current_;
                 }
 
                 // finalization
@@ -292,22 +283,26 @@ namespace ngl
                     if (pparser_state > (pparser_state & parser_state))
                     {
                         std::cout << "__UP";
-                        graph_.add(to_string(shapes_.back()), current_);
-                        // get depth
-                        auto depth = bit_count(pparser_state ^ parser_state);
 
-                        for (uint64_t di = 0; di < depth - 1; ++di)
+                        graph_.add(to_string(shapes_.back()), current_);
+
+                        if (parser_state == 0) current_ = root_;
+                        else
                         {
-                            graph_.sources(current_, [&current_](auto&& node_) { current_ = node_; });
+                            // get depth
+                            auto depth = bit_count(pparser_state ^ parser_state);
+
+                            for (uint64_t di = 0; di < depth - 1; ++di)
+                            {
+                                graph_.sources(current_, [&current_](auto&& node_) { current_ = node_; });
+                            }
                         }
                     }
                     // move down
                     else if (parser_state > (pparser_state & parser_state))
                     {
                         std::cout << "__DOWN";
-                        // right side bit
-                        auto rhs_shape_id = parser_state & (~parser_state << 1u);
-                        const auto& name = shape_cluster.name_of(rhs_shape_id);
+                        std::string name = shape_name(shape_cluster, parser_state, match_state);
 
                         graph_.add(to_string(shapes_.back()), current_);
                         current_ = graph_.add(name, current_);
@@ -352,8 +347,7 @@ namespace ngl
             {
                 std::cout << "__DOWN";
                 // right side bit
-                auto rhs_shape_id = parser_state & (~parser_state << 1u);
-                const auto& name = shape_cluster.name_of(rhs_shape_id);
+                std::string name = shape_name(shape_cluster, parser_state, match_state);
 
                 graph_.add(to_string(shapes_.back()), current_);
                 current_ = graph_.add(name, current_);
@@ -454,5 +448,13 @@ namespace ngl
     void lexer::reset()
     {
 
+    }
+    std::string lexer::shape_name(const ngl::shape_cluster& shape_cluster, uint64_t parser_state, uint64_t match_state)
+    {
+        std::string name;
+        auto shape_id = parser_state & (~parser_state << 1u);
+        if (parser_state != 0) name = shape_cluster.name_of(shape_id);
+        else name = "element"; //shape_cluster.name_of(match_state);
+        return name;
     }
 } // ngl

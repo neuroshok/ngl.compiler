@@ -52,6 +52,7 @@ namespace ngl
 
         [[nodiscard]] const ngl::graph& graph() const { return graph_; }
         [[nodiscard]] const ngl::node& root() const { return root_; }
+        [[nodiscard]] const ngl::node& first_node() const { return first_node_; }
 
         void reset();
 
@@ -65,6 +66,8 @@ namespace ngl
         [[nodiscard]] std::string to_string(const shape&) const;
         [[nodiscard]] std::string to_string() const;
 
+        static std::string shape_name(const ngl::shape_cluster& shape_cluster, uint64_t parser_state, uint64_t match_state);
+
     private:
         std::string_view data_;
         std::vector<shape> shapes_;
@@ -72,6 +75,7 @@ namespace ngl
 
         ngl::graph graph_;
         ngl::node root_;
+        ngl::node first_node_;
 
         unsigned int parser_cursor_ = 0;
     };

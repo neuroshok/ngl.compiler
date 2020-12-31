@@ -20,12 +20,12 @@ TEST(parser, basic)
         lx.process(data);
 
         std::vector<std::string> v;
-        lx.graph().targets(lx.root(), [&](auto&& n)
+        lx.graph().targets(lx.first_node(), [&](auto&& n)
         {
             v.push_back(*n);
         });
-        ASSERT_TRUE( lx.graph().count_nodes() == 4 );
-        EXPECT_TRUE( *lx.root() == "add" );
+        ASSERT_TRUE( lx.graph().count_nodes() == 5 );
+        EXPECT_TRUE( *lx.first_node() == "add" );
         EXPECT_TRUE( v[0] == "a" );
         EXPECT_TRUE( v[1] == "+" );
         EXPECT_TRUE( v[2] == "b" );

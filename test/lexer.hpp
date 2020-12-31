@@ -9,7 +9,11 @@ template<std::size_t... Is, class... Ts>
     bool match_size = lx.shapes().size() == sizeof...(ts);
     if (!match_size) return ::testing::AssertionFailure() << "input size : " << lx.shapes().size() << " expected size : " << sizeof...(ts) << "\nOutput: " << lx.to_string();
 
-    bool match_tokens = ((lx.shape_view(Is) == ts) && ...);
+    std::vector<std::string> v;
+    lx.graph().targets(lx.first_node(), [&](auto&& n) { v.push_back(*n); });
+
+
+    bool match_tokens = ((lx.shape_view(Is) == v[Is]) && ...);
     if (match_tokens) return ::testing::AssertionSuccess();
     else
     {

@@ -13,25 +13,26 @@ int main()
         //ngl::lexer lx{ ngl::get_shape_cluster() };
         ngl::shape_cluster shapes;
 
-        auto space = shapes.add(ngl::shape_element(' '));
+        auto space = shapes.add_element<ngl::shape_element>(' ');
 
-        auto letter = shapes.add_fragment(ngl::shape_range('a', 'z'));
-        auto digit = shapes.add_fragment(ngl::shape_range('0', '9'));
-        auto ob = shapes.add_fragment(ngl::shape_element('{'));
-        auto cb = shapes.add_fragment(ngl::shape_element('}'));
+        auto letter = shapes.add_fragment<ngl::shape_range>('a', 'z');
+        auto digit = shapes.add_fragment<ngl::shape_range>('0', '9');
+        auto ob = shapes.add_fragment<ngl::shape_element>('{');
+        auto cb = shapes.add_fragment<ngl::shape_element>('}');
 
-        auto colon = shapes.add(ngl::shape_element(':'));
-        auto underscore = shapes.add(ngl::shape_element('_'));
-        auto identifier_symbol = shapes.add_fragment(ngl::shape_or(letter));
-        auto many_identifier_symbol = shapes.add_fragment(ngl::shape_many(identifier_symbol));
-
-        auto raw_identifier = shapes.add(ngl::shape_sequence(letter, many_identifier_symbol), "raw_identifier");
+        auto colon = shapes.add_element(':');
+        auto underscore = shapes.add_element('_');
+        auto identifier_symbol = shapes.add_fragment<ngl::shape_or>(letter);
+        auto many_identifier_symbol = shapes.add_fragment<ngl::shape_many>(identifier_symbol);
 
 
-        auto path_edge = shapes.add_parser(ngl::shape_sequence(colon, raw_identifier), "id_edge_path");
-        auto path_identifier = shapes.add_parser(ngl::shape_sequence(raw_identifier, path_edge), "path_identifier");
+        auto raw_identifier = shapes.add<ngl::shape_sequence>("raw_identifier", letter, many_identifier_symbol);
 
-        auto SD = shapes.add_parser(ngl::shape_sequence(path_identifier, space, raw_identifier), "SD");
+        //auto path_edge = shapes.add<ngl::shape_sequence>("id_edge_path", colon, raw_identifier);
+        //auto path_identifier = shapes.add<ngl::shape_sequence>("path_identifier", raw_identifier, path_edge);
+
+        //auto SD = shapes.add<ngl::shape_sequence>("SD", path_identifier, space, raw_identifier);
+
 //       auto VD = shapes.add_parser(ngl::shape_sequence(raw_identifier, space, raw_identifier, ob, cb), "VD");
 
         //auto g = shapes.add(ngl::shape_or(SD, VD), "SD");
@@ -40,11 +41,11 @@ int main()
         // multiple rule true at same time
         // down rules
         // up rules
-
+/*
         auto letter = shapes.add_fragment<ngl::shape_range>("letter", 'a', 'z');
         auto raw_id = shapes.add_element<ngl::shape_sequence>("raw_id", letter, id_symbol);
         shapes.add<ngl::shape_sequence>("name", raw_id, raw_id);
-        shapes.add<ngl::shape_sequence>("add", raw_id, ngl::shape_ignore(plus), raw_id);
+        shapes.add<ngl::shape_sequence>("add", raw_id, ngl::shape_ignore(plus), raw_id);*/
 
 
         shapes.display();
@@ -59,7 +60,7 @@ int main()
         }
         )";*/
 
-        std::string data = "aa:bb zeta ";
+        std::string data = "aa:bb zeta";
 
         lx.process(data);
         std::cout << "\n" << lx.to_string();
