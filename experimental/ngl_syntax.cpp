@@ -27,8 +27,8 @@ int main()
 
 
         auto raw_identifier = shapes.add<ngl::shape_sequence>("raw_identifier", letter, many_identifier_symbol);
+        auto path_edge = shapes.add<ngl::shape_sequence>("id_edge_path", colon, raw_identifier);
 
-        //auto path_edge = shapes.add<ngl::shape_sequence>("id_edge_path", colon, raw_identifier);
         //auto path_identifier = shapes.add<ngl::shape_sequence>("path_identifier", raw_identifier, path_edge);
 
         //auto SD = shapes.add<ngl::shape_sequence>("SD", path_identifier, space, raw_identifier);

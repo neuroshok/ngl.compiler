@@ -254,7 +254,7 @@ namespace ngl
                 finalize = (-match_state ^ match_state) < -match_state && shape_cluster.is_scalar(match_state);
                 // vector finalization
                 finalize |= (vector_state & pvector_state) == 0;
-                //
+                // sequence finalisation
                 finalize |= sequence_state.to_ullong();
 
 
@@ -262,7 +262,6 @@ namespace ngl
                 {
                     finalize = false;
 
-                    auto lhs_shape_id = parser_state & (~parser_state << 1u);
                     auto name = shape_name(shape_cluster, parser_state, match_state);
                     current_ = graph_.add(name, current_);
                     first_node_ = current_;
@@ -278,31 +277,36 @@ namespace ngl
                     space = 0;
                     finalize = false;
 
+                    // auto transition =  (pparser_state & parser_state);
 
-                    // move up
-                    if (pparser_state > (pparser_state & parser_state))
+                    // new
+                    if (parser_state != 0 && (pparser_state & parser_state) == 0)
                     {
-                        std::cout << "__UP";
+                        graph_.add(to_string(shapes_.back()), current_);
+                        // new shape
+                        auto name = shape_name(shape_cluster, parser_state, match_state);
+                        current_ = graph_.add(name, root_);
+                    }
+                    // move up
+                    else if (pparser_state > (pparser_state & parser_state))
+                    {
+                        //std::cout << "__UP";
 
                         graph_.add(to_string(shapes_.back()), current_);
 
-                        if (parser_state == 0) current_ = root_;
-                        else
-                        {
-                            // get depth
-                            auto depth = bit_count(pparser_state ^ parser_state);
+                        // get depth
+                        auto depth = bit_count(pparser_state ^ parser_state);
 
-                            for (uint64_t di = 0; di < depth - 1; ++di)
-                            {
-                                graph_.sources(current_, [&current_](auto&& node_) { current_ = node_; });
-                            }
+                        for (uint64_t di = 0; di < depth - 1; ++di)
+                        {
+                            graph_.sources(current_, [&current_](auto&& node_) { current_ = node_; });
                         }
                     }
                     // move down
                     else if (parser_state > (pparser_state & parser_state))
                     {
-                        std::cout << "__DOWN";
                         std::string name = shape_name(shape_cluster, parser_state, match_state);
+                        //std::cout << "__DOWN" << name;
 
                         graph_.add(to_string(shapes_.back()), current_);
                         current_ = graph_.add(name, current_);
