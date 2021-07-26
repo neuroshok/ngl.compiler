@@ -47,6 +47,15 @@ int main()
         shapes.add<ngl::shape_sequence>("name", raw_id, raw_id);
         shapes.add<ngl::shape_sequence>("add", raw_id, ngl::shape_ignore(plus), raw_id);*/
 
+        /*
+        P000000000000101000000000
+        0000000000000100000000000 path_ident
+        0000000000000001000000000 raw_ident
+
+        path_id raw_id
+        path_id id_edge
+        path_id id_edge raw_id
+*/
 
         shapes.display();
 

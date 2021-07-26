@@ -10,14 +10,16 @@ int main()
     try
     {
         ngl::shape_cluster shapes;
-        auto letter = shapes.add_element<ngl::shape_range>("letter", 'a', 'z');
-        auto plus = shapes.add_element<ngl::shape_element>("plus", '+');
+        auto A = shapes.add_element('a');
+        auto B = shapes.add_element('b');
+        auto underscore = shapes.add_element('_');
 
-        auto add = shapes.add<ngl::shape_sequence>("add", letter, plus, letter);
+        auto subshape = shapes.add<ngl::shape_sequence>("subshape", A, underscore);
+        auto shape = shapes.add<ngl::shape_sequence>("shape", subshape, B);
 
         ngl::lexer lx{ shapes };
 
-        std::string data{ "a+b" };
+        std::string data{ "a_b" };
         lx.process(data);
 
         std::vector<std::string> v;

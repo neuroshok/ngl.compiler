@@ -31,3 +31,39 @@ TEST(parser, basic)
         EXPECT_TRUE( v[2] == "b" );
     }
 }
+
+TEST(parser, subshape)
+{
+    ngl::shape_cluster shapes;
+    auto A = shapes.add_element('a');
+    auto B = shapes.add_element('b');
+    auto underscore = shapes.add_element('_');
+
+    auto subshape = shapes.add<ngl::shape_sequence>("subshape", A, underscore);
+    auto shape = shapes.add<ngl::shape_sequence>("shape", subshape, B);
+
+    /*!
+          shape
+         |     \
+      subshape  B
+         | \
+        A   _
+     */
+    {
+        ngl::lexer lx{ shapes };
+
+        std::string data{ "a_b" };
+        lx.process(data);
+
+        std::vector<std::string> v;
+        lx.graph().targets(lx.first_node(), [&](auto&& n)
+        {
+            v.push_back(*n);
+        });
+        ASSERT_TRUE( lx.graph().count_nodes() == 5 );
+        EXPECT_TRUE( *lx.first_node() == "add" );
+        EXPECT_TRUE( v[0] == "a" );
+        EXPECT_TRUE( v[1] == "+" );
+        EXPECT_TRUE( v[2] == "b" );
+    }
+}

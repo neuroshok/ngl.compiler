@@ -77,4 +77,6 @@ namespace ngl
         }
         catch(...) { ngl_error("parser error"); }
     }
+
+    std::string_view compiler::version() const { return "ngl compiler 0.1"; }
 } // ngl

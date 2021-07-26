@@ -282,6 +282,7 @@ namespace ngl
                     // new
                     if (parser_state != 0 && (pparser_state & parser_state) == 0)
                     {
+                        std::cout << "__NEW";
                         graph_.add(to_string(shapes_.back()), current_);
                         // new shape
                         auto name = shape_name(shape_cluster, parser_state, match_state);
@@ -290,7 +291,7 @@ namespace ngl
                     // move up
                     else if (pparser_state > (pparser_state & parser_state))
                     {
-                        //std::cout << "__UP";
+                        std::cout << "__UP";
 
                         graph_.add(to_string(shapes_.back()), current_);
 
@@ -306,7 +307,7 @@ namespace ngl
                     else if (parser_state > (pparser_state & parser_state))
                     {
                         std::string name = shape_name(shape_cluster, parser_state, match_state);
-                        //std::cout << "__DOWN" << name;
+                        std::cout << "__DOWN" << name;
 
                         graph_.add(to_string(shapes_.back()), current_);
                         current_ = graph_.add(name, current_);
@@ -457,7 +458,8 @@ namespace ngl
     {
         std::string name;
         auto shape_id = parser_state & (~parser_state << 1u);
-        if (parser_state != 0) name = shape_cluster.name_of(shape_id);
+        if (bit_count(shape_id) > 1) name = "shape";
+        else if (parser_state != 0) name = shape_cluster.name_of(shape_id);
         else name = "element"; //shape_cluster.name_of(match_state);
         return name;
     }

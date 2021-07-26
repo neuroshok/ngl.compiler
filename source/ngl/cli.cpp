@@ -1,3 +1,4 @@
+/*
 #include <ngl/cli.hpp>
 #include <ngl/compiler.hpp>
 
@@ -40,4 +41,4 @@ namespace ngl
         // post process
 
     }
-} // ngl
+} // ngl*/

@@ -8,7 +8,7 @@ set(NC_ROOT ${CMAKE_SOURCE_DIR})
 set(NC_THIRD_PARTY_ROOT ${NC_ROOT}/third_party)
 set(NC_BIN_ROOT ${NC_ROOT}/bin)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 
 # compiler options
 
@@ -70,6 +70,9 @@ target_link_libraries(lib_llvm INTERFACE ${llvm_libs} lib_ccw)
 # lib_nds
 add_subdirectory(third_party/nds)
 
+# lib_ncs
+add_subdirectory(third_party/ncs)
+
 # lib_speedlog
 add_library(lib_speedlog INTERFACE)
 target_include_directories(lib_speedlog SYSTEM INTERFACE "third_party/spdlog/include")
@@ -87,6 +90,7 @@ target_include_directories(lib_nc_object PUBLIC include)
 target_link_libraries(lib_nc_object
         lib_llvm
         lib_nds
+        lib_ncs
         lib_speedlog
         lib_ccw)
 
@@ -105,7 +109,7 @@ add_executable(nc source/main.cpp)
 target_link_libraries(nc lib_nc)
 
 set_target_properties(nc PROPERTIES
-            RUNTIME_OUTPUT_DIRECTORY "${NGL_ROOT}/bin"
+            RUNTIME_OUTPUT_DIRECTORY "${NC_ROOT}/bin"
             OUTPUT_NAME nc)
 
 # common lib

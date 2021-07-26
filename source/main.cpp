@@ -1,9 +1,10 @@
 #include <ngl/cli.hpp>
-#include <ngl/compiler.hpp>
 
 int main(int argc, const char* argv[])
 {
-    ngl::cli cli;
+    ngl::compiler compiler;
+    ngl::cli cli{ argv[0], compiler };
+    nc_commands commands{ cli };
 
     cli.process(argc, argv);
 

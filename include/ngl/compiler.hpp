@@ -43,6 +43,8 @@ namespace ngl
 
         void set_file(std::string);
 
+        [[nodiscard]] std::string_view version() const;
+
     private:
         std::string file_path_;
         std::bitset<64> flags_;
