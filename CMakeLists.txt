@@ -8,7 +8,7 @@ set(NC_ROOT ${CMAKE_SOURCE_DIR})
 set(NC_THIRD_PARTY_ROOT ${NC_ROOT}/third_party)
 set(NC_BIN_ROOT ${NC_ROOT}/bin)
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 23)
 
 # compiler options
 

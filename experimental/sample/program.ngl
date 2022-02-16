@@ -1,25 +1,43 @@
-ngl:instruction add
-{
-    // omitted
-}
+ngl:cluster main
 
-ngl:concept:function add
-{
-    ngl:data <a>
-    ngl:data <b>
-    .result ngl:instruction:add<a, b>
-}
+add ngl:instruction
 
 ngl:concept add
 {
     ngl:data <a>
     ngl:data <b>
-    .result ngl:function:add<a, b>
+    ngl:data <<result>>
+}
+
+ngl:concretize<add, ngi:add>
+
+ngl print
+{
+    <data> ngl:data
+    ngl:rule { ngr:concretizable<data> }
 }
 
 ngl:program
 {
-    ngc:number a = 1
-    ngc:number b = 2
-    ngl:concept:add<a, b>
+    a ngc:number<[1]> // a int = 1
+    b ngc:number<[2]>
+
+    result <alias> add<a, b>
+    ngl:print<result>
 }
+
+int main()
+{
+    int a = 1
+    int b = 2
+    int result = add(a, b);
+}
+
+VD
+- SD
+- - descriptor identifier number (concept)
+- - raw_identifier
+- SD
+- - descriptor (instruction)
+
+ngl:edge<ngl, ngc:add, ngi:add, nge:concretization>

@@ -2,6 +2,7 @@
 
 #include <ngl/shape_cluster.hpp>
 #include <ngl/log.hpp>
+#include <ngl/lang.hpp>
 #include <nds/encoder/graph.hpp>
 
 namespace ngl
@@ -10,10 +11,11 @@ namespace ngl
         : name_{ std::move(name) }
         , source_{ std::move(source) }
         , graph_{}
+        , ast_{ new ngl::lang::root_description }
         , lexer_{ ngl::get_shape_cluster() }
         , root_{}
     {
-        root_ = graph_.add(name_);
+        root_ = graph_.add<ngl::lang::expression>(ngl::lang::root_description{});
         node_ = root_;
     }
 
@@ -29,14 +31,14 @@ namespace ngl
     }
 
 
-    ngl::node_ptr<std::string> cluster::root()
+    ngl::node cluster::root()
     {
         return root_;
     }
 
 
 
-    ngl::node_ptr<std::string> cluster::node()
+    ngl::node cluster::node()
     {
         return node_;
     }

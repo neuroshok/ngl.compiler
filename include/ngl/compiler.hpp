@@ -1,7 +1,7 @@
 #ifndef COMPILER_INCLUDE_NGL_COMPILER_HPP_NGL
 #define COMPILER_INCLUDE_NGL_COMPILER_HPP_NGL
 
-#include <ngl/concretizer.hpp>
+#include <ngl/conceptualizer.hpp>
 #include <ngl/graph.hpp>
 
 #include <llvm/Support/CommandLine.h>
@@ -40,6 +40,7 @@ namespace ngl
         void add_param(params, std::string value);
 
         void process(std::string file_path);
+        void error(const std::string&);
 
         void set_file(std::string);
 
@@ -50,7 +51,7 @@ namespace ngl
         std::bitset<64> flags_;
         std::unordered_map<params, std::string> params_;
 
-        std::unique_ptr<ngl::concretizer> concretizer_;
+        std::unique_ptr<ngl::conceptualizer> conceptualizer_;
     };
 } // ngl
 

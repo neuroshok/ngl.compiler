@@ -1,10 +1,12 @@
 #include <ngl/compiler.hpp>
 
-#include <fstream>
-#include <iostream>
 
 #include <ngl/cluster.hpp>
 #include <ngl/lang.hpp>
+#include <ngl/concretizer/llvm.hpp>
+
+#include <fstream>
+#include <iostream>
 
 #include <spdlog/spdlog.h>
 #include <ngl/log.hpp>
@@ -13,7 +15,7 @@ namespace ngl
 {
     compiler::compiler()
          : flags_{}
-         , concretizer_{ std::make_unique<ngl::llvm_concretizer>() }
+         , conceptualizer_{ std::make_unique<ngl::internal_conceptualizer>() }
     {
         spdlog::set_level(spdlog::level::info);
     }
@@ -22,7 +24,7 @@ namespace ngl
     {
         if (!has_flag(flags::nongl)) process("ngl.ngl");
 
-        concretizer_ = std::make_unique<ngl::llvm_concretizer>();
+        conceptualizer_ = std::make_unique<ngl::internal_conceptualizer>();
     }
 
     void compiler::add_flag(compiler::flags flag)
@@ -66,7 +68,7 @@ namespace ngl
         {
             ngl::cluster cluster{ file_path_, std::move(file_data) };
             cluster.process();
-            concretizer_->process(cluster);
+            conceptualizer_->process(cluster);
 
             // post flags
             if (has_flag(flags::graph))

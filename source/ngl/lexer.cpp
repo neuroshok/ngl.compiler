@@ -1,5 +1,6 @@
 #include <ngl/lexer.hpp>
 #include <ngl/log.hpp>
+#include <ngl/lang.hpp>
 #include <nds/encoder/graph.hpp>
 
 #include <algorithm>
@@ -24,7 +25,7 @@ namespace ngl
         : data_{}
     {
         shape_clusters_.emplace_back(std::move(shape_cluster));
-        root_ = graph_.add("root"s);
+        root_ = graph_.add(ngl::lang::expression{});
     }
 
     void lexer::process(std::string_view data)
@@ -36,7 +37,7 @@ namespace ngl
     // todo : use 3 registers for scalar, vector and parser states
     void lexer::process()
     {
-        ngl::node_ptr<std::string> current_ = root_;
+        ngl::node current_ = root_;
         reset();
 
         try
@@ -263,7 +264,7 @@ namespace ngl
                     finalize = false;
 
                     auto name = shape_name(shape_cluster, parser_state, match_state);
-                    current_ = graph_.add(name, current_);
+                    //current_ = graph_.add(name, current_);
                     first_node_ = current_;
                 }
 
@@ -283,24 +284,24 @@ namespace ngl
                     if (parser_state != 0 && (pparser_state & parser_state) == 0)
                     {
                         std::cout << "__NEW";
-                        graph_.add(to_string(shapes_.back()), current_);
+                        //graph_.add(to_string(shapes_.back()), current_);
                         // new shape
                         auto name = shape_name(shape_cluster, parser_state, match_state);
-                        current_ = graph_.add(name, root_);
+                        //current_ = graph_.add(name, root_);
                     }
                     // move up
                     else if (pparser_state > (pparser_state & parser_state))
                     {
                         std::cout << "__UP";
 
-                        graph_.add(to_string(shapes_.back()), current_);
+                        //graph_.add(to_string(shapes_.back()), current_);
 
                         // get depth
                         auto depth = bit_count(pparser_state ^ parser_state);
 
                         for (uint64_t di = 0; di < depth - 1; ++di)
                         {
-                            graph_.sources(current_, [&current_](auto&& node_) { current_ = node_; });
+                            //graph_.sources(current_, [&current_](auto&& node_) { current_ = node_; });
                         }
                     }
                     // move down
@@ -309,13 +310,13 @@ namespace ngl
                         std::string name = shape_name(shape_cluster, parser_state, match_state);
                         std::cout << "__DOWN" << name;
 
-                        graph_.add(to_string(shapes_.back()), current_);
-                        current_ = graph_.add(name, current_);
+                        //graph_.add(to_string(shapes_.back()), current_);
+                        //current_ = graph_.add(name, current_);
                     }
                     // same shape
                     else if (parser_state == (pparser_state & parser_state))
                     {
-                        graph_.add(to_string(shapes_.back()), current_);
+                        //graph_.add(to_string(shapes_.back()), current_);
                     }
                 }
 
@@ -338,13 +339,13 @@ namespace ngl
             if (pparser_state > (pparser_state & parser_state))
             {
                 std::cout << "__UP";
-                graph_.add(to_string(shapes_.back()), current_);
+                //graph_.add(to_string(shapes_.back()), current_);
                 // get depth
                 auto depth = bit_count(pparser_state ^ parser_state);
 
                 for (uint64_t di = 0; di < depth - 1; ++di)
                 {
-                    graph_.sources(current_, [&current_](auto&& node_) { current_ = node_; });
+                    //graph_.sources(current_, [&current_](auto&& node_) { current_ = node_; });
                 }
             }
             // move down
@@ -354,13 +355,13 @@ namespace ngl
                 // right side bit
                 std::string name = shape_name(shape_cluster, parser_state, match_state);
 
-                graph_.add(to_string(shapes_.back()), current_);
-                current_ = graph_.add(name, current_);
+                //graph_.add(to_string(shapes_.back()), current_);
+                //current_ = graph_.add(name, current_);
             }
             // same shape
             else if (parser_state == (pparser_state & parser_state))
             {
-                graph_.add(to_string(shapes_.back()), current_);
+                //graph_.add(to_string(shapes_.back()), current_);
             }
 
             // remove init shape
@@ -372,7 +373,7 @@ namespace ngl
         }
 
         std::cout << "\n";
-        nds::encoders::dot<>::encode<nds::console>(graph_);
+        //nds::encoders::dot<>::encode<nds::console>(graph_);
     }
 
 
