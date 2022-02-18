@@ -22,7 +22,7 @@ int main()
         std::string data{ "a_b" };
         lx.process(data);
 
-        std::vector<std::string> v;
+        std::vector<std::decay_t<decltype(lx.root().get()->get())>> v;
         lx.graph().targets(lx.root(), [&](auto&& n) { v.push_back(*n); });
 
         std::cout << "\n" << lx.to_string();

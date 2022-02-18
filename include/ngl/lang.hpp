@@ -14,6 +14,7 @@ namespace ngl::lang
     struct expression
     {
         virtual void process(ngl::conceptualizer* cc) {   };
+        virtual std::string str() const { return "expression"; }
     };
 
     struct parameterized_identifier;
@@ -35,6 +36,8 @@ namespace ngl::lang
         explicit parameterized_identifier(std::string name_) : name{ std::move(name_) } {}
 
         void process(ngl::conceptualizer* cc) override;
+        virtual std::string str() const { return "id(" + name + ")"; }
+
     };
 
     struct root_description : expression

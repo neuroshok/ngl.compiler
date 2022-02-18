@@ -1,28 +1,34 @@
 #include <gtest/gtest.h>
-#include <ngl/lexer.hpp>
+#include <ngl/parser.hpp>
+#include <ngl/lang.hpp>
 
 #define LX_EXPECT(...) EXPECT_TRUE(test_tokens(lx, __VA_ARGS__))
 
-template<std::size_t... Is, class... Ts>
-::testing::AssertionResult has_tokens(const ngl::lexer& lx, std::index_sequence<Is...>, Ts&&... ts)
+inline bool str_equal(nds::node_ptr<ngl::lang::expression> node, const std::string& value)
 {
-    bool match_size = lx.shapes().size() == sizeof...(ts);
-    if (!match_size) return ::testing::AssertionFailure() << "input size : " << lx.shapes().size() << " expected size : " << sizeof...(ts) << "\nOutput: " << lx.to_string();
+    return node->str() == value;
+}
 
-    std::vector<std::string> v;
-    lx.graph().targets(lx.first_node(), [&](auto&& n) { v.push_back(*n); });
+template<std::size_t... Is, class... Ts>
+::testing::AssertionResult has_tokens(const ngl::parser& parser, std::index_sequence<Is...>, Ts&&... ts)
+{
+    bool match_size = parser.shapes().size() == sizeof...(ts);
+    if (!match_size) return ::testing::AssertionFailure() << "input size : " << parser.shapes().size() << " expected size : " << sizeof...(ts) << "\nOutput: " << parser.to_string();
+
+    std::vector<nds::node_ptr<ngl::lang::expression>> v;
+    parser.graph().targets(parser.root(), [&](auto&& n) { v.push_back(n); });
 
 
-    bool match_tokens = ((lx.shape_view(Is) == v[Is]) && ...);
+    bool match_tokens = ((parser.shape_view(Is) == v[Is]->str()) && ...);
     if (match_tokens) return ::testing::AssertionSuccess();
     else
     {
-        return ::testing::AssertionFailure() << "tokens : " << lx.to_string();
+        return ::testing::AssertionFailure() << "tokens : " << parser.to_string();
     }
 }
 
 template<class... Ts>
-auto test_tokens(const ngl::lexer& lx, Ts&&... ts)
+auto test_tokens(const ngl::parser& parser, Ts&&... ts)
 {
-    return has_tokens(lx, std::make_index_sequence<sizeof...(Ts)>{}, std::forward<Ts>(ts)...);
+    return has_tokens(parser, std::make_index_sequence<sizeof...(Ts)>{}, std::forward<Ts>(ts)...);
 }

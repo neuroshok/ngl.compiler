@@ -14,21 +14,21 @@ TEST(parser, basic)
      a   +   b
      */
     {
-        ngl::lexer lx{ shapes };
+        ngl::parser lx{ shapes };
 
         std::string data{ "a+b" };
         lx.process(data);
 
-        std::vector<std::string> v;
-        lx.graph().targets(lx.first_node(), [&](auto&& n)
+        std::vector<nds::node_ptr<ngl::lang::expression>> v;
+        lx.graph().targets(lx.root(), [&](auto&& n)
         {
-            v.push_back(*n);
+            v.push_back(n);
         });
         ASSERT_TRUE( lx.graph().count_nodes() == 5 );
-        EXPECT_TRUE( *lx.first_node() == "add" );
-        EXPECT_TRUE( v[0] == "a" );
-        EXPECT_TRUE( v[1] == "+" );
-        EXPECT_TRUE( v[2] == "b" );
+        EXPECT_TRUE( str_equal(lx.root(), "add") );
+        EXPECT_TRUE( str_equal(v[0], "a") );
+        EXPECT_TRUE( str_equal(v[1], "+") );
+        EXPECT_TRUE( str_equal(v[2], "b") );
     }
 }
 
@@ -50,20 +50,20 @@ TEST(parser, subshape)
         A   _
      */
     {
-        ngl::lexer lx{ shapes };
+        ngl::parser lx{ shapes };
 
         std::string data{ "a_b" };
         lx.process(data);
 
-        std::vector<std::string> v;
-        lx.graph().targets(lx.first_node(), [&](auto&& n)
+        std::vector<nds::node_ptr<ngl::lang::expression>> v;
+        lx.graph().targets(lx.root(), [&](auto&& n)
         {
-            v.push_back(*n);
+            v.push_back(n);
         });
         ASSERT_TRUE( lx.graph().count_nodes() == 5 );
-        EXPECT_TRUE( *lx.first_node() == "add" );
-        EXPECT_TRUE( v[0] == "a" );
-        EXPECT_TRUE( v[1] == "+" );
-        EXPECT_TRUE( v[2] == "b" );
+        EXPECT_TRUE( str_equal(lx.root(), "add"));
+        EXPECT_TRUE( str_equal(v[0], "a") );
+        EXPECT_TRUE( str_equal(v[1], "+") );
+        EXPECT_TRUE( str_equal(v[2], "b") );
     }
 }

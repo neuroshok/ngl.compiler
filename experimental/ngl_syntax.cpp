@@ -1,10 +1,17 @@
-#include <ngl/lexer.hpp>
+#include <ngl/parser.hpp>
 #include <ngl/shape_cluster.hpp>
 
-struct path_edge
-{
+#include <ngl/lang.hpp>
+#include <nds/encoder/graph.hpp>
 
-};
+namespace nds::encoders
+{
+    template<> template<>
+    inline std::string dot<>::node_name<ngl::lang::expression>(const ngl::lang::expression& v)
+    {
+        return v.str();
+    }
+}
 
 int main()
 {
@@ -13,21 +20,31 @@ int main()
         //ngl::lexer lx{ ngl::get_shape_cluster() };
         ngl::shape_cluster shapes;
 
-        auto space = shapes.add_element<ngl::shape_element>(' ');
+        auto space = shapes.add_element<ngl::shape_space>(' ');
 
         auto letter = shapes.add_fragment<ngl::shape_range>('a', 'z');
         auto digit = shapes.add_fragment<ngl::shape_range>('0', '9');
         auto ob = shapes.add_fragment<ngl::shape_element>('{');
         auto cb = shapes.add_fragment<ngl::shape_element>('}');
 
+        auto S = shapes.add_fragment<ngl::shape_element>('s');
+        auto T = shapes.add_fragment<ngl::shape_element>('t');
+        auto R = shapes.add_fragment<ngl::shape_element>('r');
+        auto U = shapes.add_fragment<ngl::shape_element>('u');
+        auto C = shapes.add_fragment<ngl::shape_element>('c');
+        auto structt = shapes.add_element<ngl::shape_sequence>(S, T, R, U, C, T);
+
         auto colon = shapes.add_element(':');
         auto underscore = shapes.add_element('_');
-        auto identifier_symbol = shapes.add_fragment<ngl::shape_or>(letter);
-        auto many_identifier_symbol = shapes.add_fragment<ngl::shape_many>(identifier_symbol);
+        auto identifier_symbol = shapes.add_fragment<ngl::shape_or>(letter, digit);
+        //auto many_identifier_symbol = shapes.add_fragment<ngl::shape_many>(identifier_symbol);
+
+        auto many = shapes.add_fragment<ngl::shape_many>("many", letter);
 
 
-        auto raw_identifier = shapes.add<ngl::shape_sequence>("raw_identifier", letter, many_identifier_symbol);
-        auto path_edge = shapes.add<ngl::shape_sequence>("id_edge_path", colon, raw_identifier);
+        //auto raw_identifier = shapes.add<ngl::shape_sequence>("raw_identifier", letter, digit);
+        auto raw_identifier2 = shapes.add<ngl::shape_sequence>("struct", ob, many, cb);
+        //auto path_edge = shapes.add<ngl::shape_sequence>("id_edge_path", colon, raw_identifier);
 
         //auto path_identifier = shapes.add<ngl::shape_sequence>("path_identifier", raw_identifier, path_edge);
 
@@ -59,21 +76,22 @@ int main()
 
         shapes.display();
 
-        ngl::lexer lx{ shapes };
+        ngl::parser parser{ shapes };
 
         /*
         std::string data = R"(
         ngl:shape scalar_description
         {
-            ngc:sequence<ngs:identifier ngs:identifier>
+            ngc:sequence<ngs:identifier ngs:raw_identifier>
         }
         )";*/
 
-        std::string data = "aa:bb zeta";
+        std::string data = "_{aa{aa}_";
 
-        lx.process(data);
-        std::cout << "\n" << lx.to_string();
+        parser.process(data);
 
+        std::cout << "\n";
+        nds::encoders::dot<>::encode<nds::console>(parser.graph());
     }
     catch (const std::exception& e)
     {

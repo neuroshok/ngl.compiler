@@ -7,9 +7,12 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <bitset>
 
 namespace ngl
 {
+    class shape_cluster;
+
     enum class shape_type : uint8_t
     {
         space = 0
@@ -147,6 +150,13 @@ namespace ngl
         explicit shape_space(char s) : data{ static_cast<uint64_t>(s) } {}
         uint64_t data;
     };
+
+    inline uint64_t bit_count(uint64_t i)
+    {
+         return std::bitset<64>(i).count();
+    }
+
+    std::string shape_name(const ngl::shape_cluster& shape_cluster, uint64_t parser_state, uint64_t match_state);
 } // ngl
 
 #endif // COMPILER_INCLUDE_NGL_SHAPE_HPP_NGL
